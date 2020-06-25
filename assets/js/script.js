@@ -99,7 +99,7 @@ $(".list-group").on("click", "span", function () {
   dateInput.trigger("focus");
 });
   // value of date was changed
-  $(".list-group").on("blur", "input[type-'text]", function () {
+  $(".list-group").on("blur", "input[type='text']", function () {
     // get the current text/date
     var date = $(this)
       .val()
@@ -121,7 +121,7 @@ $(".list-group").on("click", "span", function () {
       .addClass("badge badge-primary badge-pill")
       .text(date);
     // replace input with span element
-    $(this).replaceWith(taskP);
+    $(this).replaceWith(taskSpan);
 });
 
 // modal was triggered
