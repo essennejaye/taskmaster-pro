@@ -98,7 +98,7 @@ $(".list-group").on("click", "span", function () {
   // automatically focus on new element
   dateInput.trigger("focus");
 });
-  // value of date was changed
+  // value of date was changed, retrieve changed value
   $(".list-group").on("blur", "input[type='text']", function () {
     // get the current text/date
     var date = $(this)
