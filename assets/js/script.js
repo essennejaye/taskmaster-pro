@@ -159,41 +159,63 @@ $(".card .list-group").sortable({
   scroll: false,
   tolerance: "pointer",
   helper: "clone",
-  // move tasks to new positions in task arrays and to new task status array
-  update: function () {
-    var tempArr = [];
-    // loop over current set of children in sortable list
-    $(this).children().each(function () {
-      var text = $(this)
-        .find("p")
-        .text()
-        .trim();
-      var date = $(this)
-        .find("span")
-        .text()
-        .trim();
-      // add task to temp array as an object
-      tempArr.push({
-        text: text,
-        date: date
-      });
-    });
-    // trim down list's ID to match object property
-    var arrName = $(this)
-      .attr("id")
-      .replace("list-", "");
-    // update array on tasks object and save
-    tasks[arrName] = tempArr;
-    saveTasks();
-  }
-});
+  activate: function (event) {
+    $(this).addClass("dropover");
+    $(".bottom-trash").addClass("bottom-trash-drag");
+  },
+  deactivate: function (event) {
+    $(this).removeClass("dropover");    
+    $(".bottom-trash").removeClass("bottom-trash-drag");
+  },
+  over: function (event) {
+    $(event.target).addClass("dropover-active");
 
+  },
+  out: function (event) {
+    $(event.target).removeClass("dropover-active");
+  },
+
+// move tasks to new positions in task arrays and to new task status array
+update: function () {
+  var tempArr = [];
+  // loop over current set of children in sortable list
+  $(this).children().each(function () {
+    var text = $(this)
+      .find("p")
+      .text()
+      .trim();
+    var date = $(this)
+      .find("span")
+      .text()
+      .trim();
+    // add task to temp array as an object
+    tempArr.push({
+      text: text,
+      date: date
+    });
+  });
+  // trim down list's ID to match object property
+  var arrName = $(this)
+    .attr("id")
+    .replace("list-", "");
+  // update array on tasks object and save
+  tasks[arrName] = tempArr;
+  saveTasks();
+}
+});
 $("#trash").droppable({
   accept: ".card .list-group-item",
   tolerance: "touch",
+  over: function () {
+    $(".bottom-trash").addClass("bottom-trash-active");
+  },
   drop: function (e, ui) {
     ui.draggable.remove();
+    $(".bottom-trash").removeClass("bottom-trash-active");
   },
+  out: function () {
+    $(".bottom-trash").removeClass("bottom-class-active");
+  }
 });
 
 // modal was triggered
@@ -212,7 +234,7 @@ $("#modalDueDate").datepicker({
 });
 
 // save button in modal was clicked
-$("#task-form-modal .btn-primary").click(function () {
+$("#task-form-modal .btn-save").click(function () {
   // get form values
   var taskText = $("#modalTaskDescription").val();
   var taskDate = $("#modalDueDate").val();
@@ -242,8 +264,8 @@ $("#remove-tasks").on("click", function () {
 // load tasks for the first time
 loadTasks();
 
-setInterval(function() {
-$(".card .list-group-item").each(function(el) {
-  auditTask(el);
- });
- }, (1000 * 60) * 30);
+setInterval(function () {
+  $(".card .list-group-item").each(function (el) {
+    auditTask(el);
+  });
+}, (1000 * 60) * 30);
