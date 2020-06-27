@@ -11,6 +11,8 @@ var createTask = function (taskText, taskDate, taskList) {
     .text(taskText);
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
+  // check due date
+  auditTask(taskLi);
   // append to ul list on the page
   $("#list-" + taskList).append(taskLi);
 };
@@ -89,11 +91,19 @@ $(".list-group").on("click", "span", function () {
     .val(date);
   // swap out elements
   $(this).replaceWith(dateInput);
+  // enable jquery ui datepicker
+  dateInput.datepicker({
+    minDate: 1,
+    onClose: function () {
+      // when calender is closed, force a "change" event on dateInput
+      $(this).trigger("change");
+    }
+  });
   // automatically focus on new element
   dateInput.trigger("focus");
 });
 // value of date was changed, retrieve changed value
-$(".list-group").on("blur", "input[type='text']", function () {
+$(".list-group").on("change", "input[type='text']", function () {
   // get the current text/date
   var date = $(this)
     .val()
@@ -116,7 +126,27 @@ $(".list-group").on("blur", "input[type='text']", function () {
     .text(date);
   // replace input with span element
   $(this).replaceWith(taskSpan);
+  // pass task's <li> element into auditTask() to check new date
+  auditTask($(taskSpan).closest(".list-group-item"));
 });
+var auditTask = function(taskEl) {
+  // get date from task element
+  var date = $(taskEl)
+  .find("span")
+  .text()
+  .trim()
+   // convert to moment object at 5:00pm
+   var time = moment(date, "L").set("hour", 17);
+  // remove any old classes from element
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
+  // apply new class if task is near or over due date
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger");
+  }
+  else if (Math.abs(moment().diff(time, "days")) <= 2) {
+    $(taskEl).addClass("list-group-item-warning");
+  }
+  };
 // make tasks draggable
 $(".card .list-group").sortable({
   connectWith: $(".card .list-group"),
@@ -154,7 +184,7 @@ $(".card .list-group").sortable({
 $("#trash").droppable({
   accept: ".card .list-group-item",
   tolerance: "touch",
-  drop: function(e, ui) {
+  drop: function (e, ui) {
     ui.draggable.remove();
   },
 });
@@ -168,6 +198,9 @@ $("#task-form-modal").on("show.bs.modal", function () {
 $("#task-form-modal").on("shown.bs.modal", function () {
   // highlight textarea
   $("#modalTaskDescription").trigger("focus");
+});
+$("#modalDueDate").datepicker({
+  minDate: 1
 });
 
 // save button in modal was clicked
