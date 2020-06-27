@@ -36,6 +36,7 @@ var loadTasks = function () {
     });
   });
 };
+
 var saveTasks = function () {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
@@ -55,6 +56,7 @@ $(".list-group").on("click", "p", function () {
   // automatically focus on new element
   textInput.trigger("focus");
 });
+
 $(".list-group").on("blur", "textarea", function () {
   // get the textarea's current value/text
   var text = $(this)
@@ -78,6 +80,7 @@ $(".list-group").on("blur", "textarea", function () {
   // replace textarea with p element
   $(this).replaceWith(taskP);
 });
+
 //  due date was clicked
 $(".list-group").on("click", "span", function () {
   // get current date
@@ -102,6 +105,7 @@ $(".list-group").on("click", "span", function () {
   // automatically focus on new element
   dateInput.trigger("focus");
 });
+
 // value of date was changed, retrieve changed value
 $(".list-group").on("change", "input[type='text']", function () {
   // get the current text/date
@@ -129,14 +133,15 @@ $(".list-group").on("change", "input[type='text']", function () {
   // pass task's <li> element into auditTask() to check new date
   auditTask($(taskSpan).closest(".list-group-item"));
 });
-var auditTask = function(taskEl) {
+
+var auditTask = function (taskEl) {
   // get date from task element
   var date = $(taskEl)
-  .find("span")
-  .text()
-  .trim()
-   // convert to moment object at 5:00pm
-   var time = moment(date, "L").set("hour", 17);
+    .find("span")
+    .text()
+    .trim()
+  // convert to moment object at 5:00pm
+  var time = moment(date, "L").set("hour", 17);
   // remove any old classes from element
   $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
   // apply new class if task is near or over due date
@@ -146,7 +151,8 @@ var auditTask = function(taskEl) {
   else if (Math.abs(moment().diff(time, "days")) <= 2) {
     $(taskEl).addClass("list-group-item-warning");
   }
-  };
+};
+
 // make tasks draggable
 $(".card .list-group").sortable({
   connectWith: $(".card .list-group"),
@@ -181,6 +187,7 @@ $(".card .list-group").sortable({
     saveTasks();
   }
 });
+
 $("#trash").droppable({
   accept: ".card .list-group-item",
   tolerance: "touch",
@@ -188,6 +195,7 @@ $("#trash").droppable({
     ui.draggable.remove();
   },
 });
+
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function () {
   // clear values
@@ -211,10 +219,8 @@ $("#task-form-modal .btn-primary").click(function () {
 
   if (taskText && taskDate) {
     createTask(taskText, taskDate, "toDo");
-
     // close modal
     $("#task-form-modal").modal("hide");
-
     // save in tasks array
     tasks.toDo.push({
       text: taskText,
@@ -223,6 +229,7 @@ $("#task-form-modal .btn-primary").click(function () {
     saveTasks();
   }
 });
+
 // remove all tasks
 $("#remove-tasks").on("click", function () {
   for (var key in tasks) {
@@ -231,7 +238,12 @@ $("#remove-tasks").on("click", function () {
   }
   saveTasks();
 });
+
 // load tasks for the first time
 loadTasks();
 
-
+setInterval(function() {
+$(".card .list-group-item").each(function(el) {
+  auditTask(el);
+ });
+ }, (1000 * 60) * 30);
